@@ -14,27 +14,38 @@ const app = express();
 
 // middleware
 app.use(express.json());
-app.use(express.urlencoded({extended:true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// CORS Configuration
 const corsOptions = {
-    origin:'http://localhost:5173',
-    credentials:true
-}
+  origin: function (origin, callback) {
+    // List of allowed origins for CORS
+    const allowedOrigins = [
+      'http://localhost:5173',  // Local development
+      'https://jobwalafront.onrender.com',  // Deployed production front-end
+    ];
+
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,  // Allow cookies to be sent with requests
+};
 
 app.use(cors(corsOptions));
 
 const PORT = process.env.PORT || 3000;
 
-
-// api's
+// API routes
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/company", companyRoute);
 app.use("/api/v1/job", jobRoute);
 app.use("/api/v1/application", applicationRoute);
 
-
-
-app.listen(PORT,()=>{
-    connectDB();
-    console.log(`Server running at port ${PORT}`);
-})
+app.listen(PORT, () => {
+  connectDB();
+  console.log(`Server running at port ${PORT}`);
+});
